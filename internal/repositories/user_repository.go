@@ -5,22 +5,22 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type GameRepository interface {
+type UserRepository interface {
 	GetAll() ([]models.Result, error)
 }
 
-type gameRepository struct {
+type userRepository struct {
 	collection *mongo.Collection
 }
 
-func NewGameRepository(db *mongo.Client) GameRepository {
+func NewUserRepository(db *mongo.Client) UserRepository {
 	collection := db.Database("dune").Collection("results")
-	return &gameRepository{
+	return &userRepository{
 		collection: collection,
 	}
 }
 
-func (g gameRepository) GetAll() ([]models.Result, error) {
+func (r userRepository) GetAll() ([]models.Result, error) {
 	//TODO implement me
 	panic("implement me")
 }

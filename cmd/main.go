@@ -8,6 +8,5 @@ func main() {
 
 	application := &app.App{}
 	application.Initialize()
-	application.SetupRoutes()
-	application.Run(":3000")
+	application.Run()
 }

@@ -1,30 +1,27 @@
-package config
+package db
 
 import (
 	"context"
-	"log"
-	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectDB() *mongo.Client {
-	uri := os.Getenv("MONGODB_URI")
-	if uri == "" {
-		uri = "mongodb://localhost:27017"
-	}
-
-	clientOptions := options.Client().ApplyURI(uri)
+func ConnectMongoDB(mongoURI string) (*mongo.Client, error) {
+	clientOptions := options.Client().ApplyURI(mongoURI)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return client
+	if err := client.Ping(ctx, nil); err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }
