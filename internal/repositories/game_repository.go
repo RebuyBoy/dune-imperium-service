@@ -6,7 +6,7 @@ import (
 )
 
 type GameRepository interface {
-	GetAll(name string, name2 string) ([]models.Result, error)
+	GetAll() ([]models.Result, error)
 }
 
 type gameRepository struct {
@@ -20,7 +20,7 @@ func NewGameRepository(db *mongo.Client) GameRepository {
 	}
 }
 
-func (g gameRepository) GetAll(string, string) ([]models.Result, error) {
+func (g gameRepository) GetAll() ([]models.Result, error) {
 	//TODO implement me
 	panic("implement me")
 }
