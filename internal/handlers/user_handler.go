@@ -6,20 +6,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type UserHandler interface {
+type PlayerHandler interface {
 	GetAll(c *fiber.Ctx) error
 }
 
-type userHandler struct {
-	logger      *logrus.Logger
-	gameService services.UserService
+type playerHandler struct {
+	logger        *logrus.Logger
+	playerService services.PlayerService
 }
 
-func NewUserHandler(logger *logrus.Logger, gameService services.UserService) UserHandler {
-	return &userHandler{logger: logger, gameService: gameService}
+func NewPlayerHandler(logger *logrus.Logger, playerService services.PlayerService) PlayerHandler {
+	return &playerHandler{logger: logger, playerService: playerService}
 }
-func (h *userHandler) GetAll(c *fiber.Ctx) error {
-	h.logger.Info("Fetching all results")
-	results := h.gameService.GetAll()
-	return c.JSON(results)
+func (h *playerHandler) GetAll(c *fiber.Ctx) error {
+	h.logger.Info("Fetching all players")
+	players := h.playerService.GetAll()
+	return c.JSON(players)
 }

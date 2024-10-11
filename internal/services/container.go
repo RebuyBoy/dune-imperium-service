@@ -7,19 +7,19 @@ import (
 )
 
 type Container struct {
-	GameService UserService
-	UserService UserService
+	ResultService ResultService
+	PlayerService PlayerService
 }
 
 func NewServiceContainer(logger *logrus.Logger, dbClient *mongo.Client) *Container {
-	gameRepo := repositories.NewResultRepository(dbClient)
-	gameService := NewResultService(logger, gameRepo)
+	resultRepo := repositories.NewResultRepository(dbClient)
+	resultService := NewResultService(logger, resultRepo)
 
-	userRepo := repositories.NewUserRepository(dbClient)
-	userService := NewUserService(logger, userRepo)
+	playerRepo := repositories.NewPlayerRepository(dbClient)
+	playerService := NewUserService(logger, playerRepo)
 
 	return &Container{
-		GameService: gameService,
-		UserService: userService,
+		ResultService: resultService,
+		PlayerService: playerService,
 	}
 }

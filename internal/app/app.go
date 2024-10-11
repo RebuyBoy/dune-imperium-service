@@ -29,7 +29,7 @@ func (app *App) Initialize() {
 
 	app.Cfg, err = configs.GetConfig()
 	if err != nil {
-		app.Logger.Fatal("Error getting config")
+		app.Logger.Fatal("Error getting config: ", err)
 	}
 
 	app.MongoClient, err = db.ConnectMongoDB(app.Cfg.MongoURI)

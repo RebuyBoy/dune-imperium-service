@@ -1,4 +1,4 @@
-package users
+package user
 
 import (
 	"dune-imperium-service/internal/handlers"
@@ -7,8 +7,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func SetupUsersRoutes(router fiber.Router, logger *logrus.Logger, userService services.UserService) {
-	userHandler := handlers.NewUserHandler(logger, userService)
+func SetupPlayerRoutes(router fiber.Router, logger *logrus.Logger, userService services.PlayerService) {
+	userHandler := handlers.NewPlayerHandler(logger, userService)
 
 	usersGroup := router.Group("/users")
 

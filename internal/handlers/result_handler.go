@@ -7,15 +7,16 @@ import (
 )
 
 type ResultHandler struct {
-	logger      *logrus.Logger
-	gameService services.UserService
+	logger        *logrus.Logger
+	resultService services.ResultService
 }
 
-func NewResultHandler(logger *logrus.Logger, gameService services.UserService) *ResultHandler {
-	return &ResultHandler{logger: logger, gameService: gameService}
+func NewResultHandler(logger *logrus.Logger, resultService services.ResultService) *ResultHandler {
+	return &ResultHandler{logger: logger, resultService: resultService}
 }
+
 func (h *ResultHandler) GetAll(c *fiber.Ctx) error {
 	h.logger.Info("Fetching all results")
-	results := h.gameService.GetAll()
+	results := h.resultService.GetAll()
 	return c.JSON(results)
 }

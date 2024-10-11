@@ -1,4 +1,4 @@
-package results
+package result
 
 import (
 	"dune-imperium-service/internal/handlers"
@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func SetupResultsRoutes(router fiber.Router, logger *logrus.Logger, resultService services.UserService) {
+func SetupResultRoutes(router fiber.Router, logger *logrus.Logger, resultService services.ResultService) {
 	resultHandler := handlers.NewResultHandler(logger, resultService)
 
 	resultsGroup := router.Group("/results")

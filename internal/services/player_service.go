@@ -6,16 +6,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type UserService interface {
+type PlayerService interface {
 	GetAll() []models.Result
 }
 
 type userService struct {
-	logger   *logrus.Logger
-	userRepo repositories.UserRepository
+	logger     *logrus.Logger
+	playerRepo repositories.PlayerRepository
 }
 
-func NewUserService(logger *logrus.Logger, userRepo repositories.UserRepository) UserService {
+func NewUserService(logger *logrus.Logger, userRepo repositories.PlayerRepository) PlayerService {
 	return &userService{logger, userRepo}
 }
 
