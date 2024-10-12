@@ -10,6 +10,13 @@ type Config struct {
 	MongoURI string
 	AppName  string
 	Port     string
+	Minio    MinioConfig
+}
+
+type MinioConfig struct {
+	Endpoint  string
+	AccessKey string
+	SecretKey string
 }
 
 var (
@@ -33,6 +40,21 @@ func GetConfig() (*Config, error) {
 		}
 
 		cfg.Port, initErr = getRequiredEnv("PORT")
+		if initErr != nil {
+			return
+		}
+
+		cfg.Minio.Endpoint, initErr = getRequiredEnv("MINIO_ENDPOINT")
+		if initErr != nil {
+			return
+		}
+
+		cfg.Minio.AccessKey, initErr = getRequiredEnv("MINIO_ACCESS_KEY")
+		if initErr != nil {
+			return
+		}
+
+		cfg.Minio.SecretKey, initErr = getRequiredEnv("MINIO_SECRET_KEY")
 		if initErr != nil {
 			return
 		}

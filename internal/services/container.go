@@ -2,6 +2,7 @@ package services
 
 import (
 	"dune-imperium-service/internal/repositories"
+	"github.com/minio/minio-go/v7"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -11,12 +12,18 @@ type Container struct {
 	PlayerService PlayerService
 }
 
-func NewServiceContainer(logger *logrus.Logger, dbClient *mongo.Client) *Container {
-	resultRepo := repositories.NewResultRepository(dbClient)
-	resultService := NewResultService(logger, resultRepo)
+type ServiceDependencies struct {
+	Logger      *logrus.Logger
+	MongoClient *mongo.Client
+	MinioClient *minio.Client
+}
 
-	playerRepo := repositories.NewPlayerRepository(dbClient)
-	playerService := NewUserService(logger, playerRepo)
+func NewServiceContainer(deps ServiceDependencies) *Container {
+	resultRepo := repositories.NewResultRepository(deps.MongoClient)
+	resultService := NewResultService(deps.Logger, resultRepo)
+
+	playerRepo := repositories.NewPlayerRepository(deps.MongoClient)
+	playerService := NewPlayerService(deps.Logger, playerRepo, deps.MinioClient)
 
 	return &Container{
 		ResultService: resultService,
