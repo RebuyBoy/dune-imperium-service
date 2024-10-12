@@ -15,8 +15,8 @@ import (
 )
 
 type PlayerService interface {
-	Create(request api.PlayerCreateRequest) error
-	GetAllNames() ([]string, error)
+	Create(ctx context.Context, request api.PlayerCreateRequest) error
+	GetNames(ctx context.Context) ([]string, error)
 }
 
 type playerService struct {
@@ -33,7 +33,7 @@ func NewPlayerService(logger *logrus.Logger, playerRepo repositories.PlayerRepos
 	}
 }
 
-func (s *playerService) Create(request api.PlayerCreateRequest) error {
+func (s *playerService) Create(ctx context.Context, request api.PlayerCreateRequest) error {
 
 	player := &models.Player{
 		ID:           uuid.New().String(),
@@ -41,6 +41,8 @@ func (s *playerService) Create(request api.PlayerCreateRequest) error {
 		Email:        request.Email,
 		RegisteredAt: time.Now(),
 	}
+
+	time.Sleep(5 * time.Second)
 
 	avatarURL, err := s.uploadAvatar(player.ID, request.Avatar)
 	if err != nil {
@@ -50,7 +52,7 @@ func (s *playerService) Create(request api.PlayerCreateRequest) error {
 
 	player.AvatarURL = avatarURL
 
-	err = s.playerRepo.Save(player)
+	err = s.playerRepo.Save(ctx, player)
 	if err != nil {
 		s.logger.Error("Error saving player to MongoDB: ", err)
 		return err
@@ -59,8 +61,8 @@ func (s *playerService) Create(request api.PlayerCreateRequest) error {
 	return nil
 }
 
-func (s *playerService) GetAllNames() ([]string, error) {
-	return s.playerRepo.GetAllNames()
+func (s *playerService) GetNames(ctx context.Context) ([]string, error) {
+	return s.playerRepo.GetNames(ctx)
 }
 
 func (s *playerService) uploadAvatar(playerID string, avatar api.Avatar) (string, error) {

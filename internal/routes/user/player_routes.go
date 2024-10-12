@@ -13,4 +13,5 @@ func SetupPlayerRoutes(router fiber.Router, logger *logrus.Logger, userService s
 	usersGroup := router.Group("/player")
 
 	usersGroup.Post("/create", userHandler.Create)
+	usersGroup.Get("/names", userHandler.GetNames)
 }

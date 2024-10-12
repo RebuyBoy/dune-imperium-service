@@ -9,6 +9,7 @@ import (
 
 type PlayerHandler interface {
 	Create(c *fiber.Ctx) error
+	GetNames(c *fiber.Ctx) error
 }
 
 type playerHandler struct {
@@ -21,45 +22,60 @@ func NewPlayerHandler(logger *logrus.Logger, playerService services.PlayerServic
 }
 
 func (h *playerHandler) Create(c *fiber.Ctx) error {
-	var request api.PlayerCreateRequest
-	if err := c.BodyParser(&request); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
-		})
+	request, err := h.parseCreateRequest(c)
+	if err != nil {
+		return h.handleError(c, fiber.StatusBadRequest, "Invalid request", err)
 	}
 
+	avatar, err := h.processAvatar(c)
+	if err != nil {
+		return h.handleError(c, fiber.StatusBadRequest, "Failed to process avatar", err)
+	}
+	request.Avatar = avatar
+
+	if err := h.playerService.Create(c.Context(), request); err != nil {
+		return h.handleError(c, fiber.StatusInternalServerError, "Failed to create player", err)
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Player created successfully"})
+}
+
+func (h *playerHandler) GetNames(c *fiber.Ctx) error {
+	names, err := h.playerService.GetNames(c.Context())
+	if err != nil {
+		return h.handleError(c, fiber.StatusInternalServerError, "Failed to get player names", err)
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"names": names})
+}
+
+func (h *playerHandler) parseCreateRequest(c *fiber.Ctx) (api.PlayerCreateRequest, error) {
+	var request api.PlayerCreateRequest
+	if err := c.BodyParser(&request); err != nil {
+		return request, err
+	}
+	return request, nil
+}
+
+func (h *playerHandler) processAvatar(c *fiber.Ctx) (api.Avatar, error) {
 	fileHeader, err := c.FormFile("avatar")
 	if err != nil {
-		h.logger.Error("Error retrieving avatar file: ", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Avatar file is required",
-		})
+		return api.Avatar{}, err
 	}
 
 	file, err := fileHeader.Open()
 	if err != nil {
-		h.logger.Error("Error opening avatar file: ", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to process avatar file",
-		})
+		return api.Avatar{}, err
 	}
 	defer file.Close()
 
-	avatar := api.Avatar{
+	return api.Avatar{
 		File:     file,
 		Size:     fileHeader.Size,
 		Filename: fileHeader.Filename,
-	}
+	}, nil
+}
 
-	request.Avatar = avatar
-
-	err = h.playerService.Create(request)
-	if err != nil {
-		h.logger.Error("Error creating player: ", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to create player",
-		})
-	}
-
-	return c.Status(fiber.StatusCreated).JSON("Player created successfully")
+func (h *playerHandler) handleError(c *fiber.Ctx, status int, message string, err error) error {
+	h.logger.Error(message+": ", err)
+	return c.Status(status).JSON(fiber.Map{"error": message})
 }

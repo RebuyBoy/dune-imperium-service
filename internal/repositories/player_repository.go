@@ -10,10 +10,10 @@ import (
 )
 
 type PlayerRepository interface {
-	Save(player *models.Player) error
-	GetById(id string) (*models.Player, error)
-	GetAllNames() ([]string, error)
-	GetByNickname(nickname string) (*models.Player, error)
+	Save(ctx context.Context, player *models.Player) error
+	GetById(ctx context.Context, id string) (*models.Player, error)
+	GetNames(ctx context.Context) ([]string, error)
+	GetByNickname(ctx context.Context, nickname string) (*models.Player, error)
 }
 
 type playerRepository struct {
@@ -27,16 +27,16 @@ func NewPlayerRepository(db *mongo.Client) PlayerRepository {
 	}
 }
 
-func (r *playerRepository) Save(player *models.Player) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+func (r *playerRepository) Save(ctx context.Context, player *models.Player) error {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	_, err := r.collection.InsertOne(ctx, player)
 	return err
 }
 
-func (r *playerRepository) GetById(id string) (*models.Player, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+func (r *playerRepository) GetById(ctx context.Context, id string) (*models.Player, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	var player models.Player
@@ -48,8 +48,8 @@ func (r *playerRepository) GetById(id string) (*models.Player, error) {
 	return &player, nil
 }
 
-func (r *playerRepository) GetAllNames() ([]string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+func (r *playerRepository) GetNames(ctx context.Context) ([]string, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	projection := bson.D{{Key: "nickname", Value: 1}, {Key: "_id", Value: 0}}
@@ -79,10 +79,12 @@ func (r *playerRepository) GetAllNames() ([]string, error) {
 	return names, nil
 }
 
-func (r *playerRepository) GetByNickname(nickname string) (*models.Player, error) {
+func (r *playerRepository) GetByNickname(ctx context.Context, nickname string) (*models.Player, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
 	var user models.Player
 	filter := bson.M{"nickname": nickname}
-	err := r.collection.FindOne(context.TODO(), filter).Decode(&user)
+	err := r.collection.FindOne(ctx, filter).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
