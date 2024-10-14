@@ -3,6 +3,8 @@ package repositories
 import (
 	"context"
 	"dune-imperium-service/internal/models"
+	"errors"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -21,7 +23,7 @@ type playerRepository struct {
 }
 
 func NewPlayerRepository(db *mongo.Client) PlayerRepository {
-	collection := db.Database("dune").Collection("results")
+	collection := db.Database("dune").Collection("players")
 	return &playerRepository{
 		collection: collection,
 	}
@@ -49,6 +51,8 @@ func (r *playerRepository) GetById(ctx context.Context, id string) (*models.Play
 }
 
 func (r *playerRepository) GetNames(ctx context.Context) ([]string, error) {
+	names := make([]string, 0)
+
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
@@ -57,23 +61,22 @@ func (r *playerRepository) GetNames(ctx context.Context) ([]string, error) {
 
 	cursor, err := r.collection.Find(ctx, bson.M{}, opts)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return names, nil
+		}
+		return names, fmt.Errorf("failed to execute find query: %w", err)
 	}
 	defer cursor.Close(ctx)
 
-	var names []string
-	for cursor.Next(ctx) {
-		var result struct {
-			Nickname string `bson:"nickname"`
-		}
-		if err := cursor.Decode(&result); err != nil {
-			return nil, err
-		}
-		names = append(names, result.Nickname)
+	var results []struct {
+		Nickname string `bson:"nickname"`
+	}
+	if err = cursor.All(ctx, &results); err != nil {
+		return names, fmt.Errorf("failed to decode results: %w", err)
 	}
 
-	if err := cursor.Err(); err != nil {
-		return nil, err
+	for _, result := range results {
+		names = append(names, result.Nickname)
 	}
 
 	return names, nil

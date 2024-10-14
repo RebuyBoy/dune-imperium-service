@@ -38,7 +38,6 @@ func (s *playerService) Create(ctx context.Context, request api.PlayerCreateRequ
 	player := &models.Player{
 		ID:           uuid.New().String(),
 		Nickname:     request.Nickname,
-		Email:        request.Email,
 		RegisteredAt: time.Now(),
 	}
 
@@ -62,7 +61,12 @@ func (s *playerService) Create(ctx context.Context, request api.PlayerCreateRequ
 }
 
 func (s *playerService) GetNames(ctx context.Context) ([]string, error) {
-	return s.playerRepo.GetNames(ctx)
+	names, err := s.playerRepo.GetNames(ctx)
+	if err != nil {
+		s.logger.Error("Error retrieving player names: ", err)
+		return nil, err
+	}
+	return names, nil
 }
 
 func (s *playerService) uploadAvatar(playerID string, avatar api.Avatar) (string, error) {

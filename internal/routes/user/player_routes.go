@@ -10,8 +10,8 @@ import (
 func SetupPlayerRoutes(router fiber.Router, logger *logrus.Logger, userService services.PlayerService) {
 	userHandler := handlers.NewPlayerHandler(logger, userService)
 
-	usersGroup := router.Group("/player")
+	usersGroup := router.Group("/players")
 
-	usersGroup.Post("/create", userHandler.Create)
+	usersGroup.Post("/", userHandler.Create)
 	usersGroup.Get("/names", userHandler.GetNames)
 }

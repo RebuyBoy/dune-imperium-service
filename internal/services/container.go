@@ -20,7 +20,7 @@ type ServiceDependencies struct {
 
 func NewServiceContainer(deps ServiceDependencies) *Container {
 	resultRepo := repositories.NewResultRepository(deps.MongoClient)
-	resultService := NewResultService(deps.Logger, resultRepo)
+	resultService := NewResultService(deps.Logger, resultRepo, deps.MinioClient)
 
 	playerRepo := repositories.NewPlayerRepository(deps.MongoClient)
 	playerService := NewPlayerService(deps.Logger, playerRepo, deps.MinioClient)

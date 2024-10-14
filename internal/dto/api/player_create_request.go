@@ -4,7 +4,6 @@ import "io"
 
 type PlayerCreateRequest struct {
 	Nickname string `json:"nickname"`
-	Email    string `json:"email"`
 	Avatar   Avatar `json:"-"`
 }
 
