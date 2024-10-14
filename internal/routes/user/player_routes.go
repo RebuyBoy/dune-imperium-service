@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func SetupPlayerRoutes(router fiber.Router, logger *logrus.Logger, userService services.PlayerService) {
+func SetupPlayerRoutes(router fiber.Router, logger *logrus.Logger, userService *services.PlayerService) {
 	userHandler := handlers.NewPlayerHandler(logger, userService)
 
 	usersGroup := router.Group("/players")

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"io"
+	"dune-imperium-service/internal/models"
 	"time"
 )
 
@@ -15,12 +15,6 @@ type PlayerResultRequest struct {
 type ResultSaveRequest struct {
 	GameMode   string                `json:"game_mode"`
 	Date       time.Time             `json:"date"`
-	Screenshot *Screenshot           `json:"-"`
+	Screenshot *models.FileData      `json:"-"`
 	Results    []PlayerResultRequest `json:"results"`
-}
-
-type Screenshot struct {
-	File     io.Reader
-	Size     int64
-	Filename string
 }

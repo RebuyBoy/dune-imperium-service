@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"dune-imperium-service/internal/dto/api"
+	"dune-imperium-service/internal/models"
 	"dune-imperium-service/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
@@ -14,10 +15,10 @@ type PlayerHandler interface {
 
 type playerHandler struct {
 	logger        *logrus.Logger
-	playerService services.PlayerService
+	playerService *services.PlayerService
 }
 
-func NewPlayerHandler(logger *logrus.Logger, playerService services.PlayerService) PlayerHandler {
+func NewPlayerHandler(logger *logrus.Logger, playerService *services.PlayerService) PlayerHandler {
 	return &playerHandler{logger: logger, playerService: playerService}
 }
 
@@ -56,22 +57,22 @@ func (h *playerHandler) parseCreateRequest(c *fiber.Ctx) (api.PlayerCreateReques
 	return request, nil
 }
 
-func (h *playerHandler) processAvatar(c *fiber.Ctx) (api.Avatar, error) {
+func (h *playerHandler) processAvatar(c *fiber.Ctx) (*models.FileData, error) {
 	fileHeader, err := c.FormFile("avatar")
 	if err != nil {
-		return api.Avatar{}, err
+		return nil, err
 	}
 
 	file, err := fileHeader.Open()
 	if err != nil {
-		return api.Avatar{}, err
+		return nil, err
 	}
 	defer file.Close()
 
-	return api.Avatar{
-		File:     file,
-		Size:     fileHeader.Size,
+	return &models.FileData{
 		Filename: fileHeader.Filename,
+		Size:     fileHeader.Size,
+		Content:  file,
 	}, nil
 }
 

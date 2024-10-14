@@ -5,36 +5,26 @@ import (
 	"dune-imperium-service/internal/dto/api"
 	"dune-imperium-service/internal/models"
 	"dune-imperium-service/internal/repositories"
-	"fmt"
 	"github.com/google/uuid"
-	"github.com/minio/minio-go/v7"
 	"github.com/sirupsen/logrus"
-	"mime"
-	"path/filepath"
 	"time"
 )
 
-type PlayerService interface {
-	Create(ctx context.Context, request api.PlayerCreateRequest) error
-	GetNames(ctx context.Context) ([]string, error)
+type PlayerService struct {
+	logger         *logrus.Logger
+	playerRepo     repositories.PlayerRepository
+	storageService *FileStorageService
 }
 
-type playerService struct {
-	logger      *logrus.Logger
-	playerRepo  repositories.PlayerRepository
-	minioClient *minio.Client
-}
-
-func NewPlayerService(logger *logrus.Logger, playerRepo repositories.PlayerRepository, minioClient *minio.Client) PlayerService {
-	return &playerService{
-		logger:      logger,
-		playerRepo:  playerRepo,
-		minioClient: minioClient,
+func NewPlayerService(logger *logrus.Logger, playerRepo repositories.PlayerRepository, storageService *FileStorageService) *PlayerService {
+	return &PlayerService{
+		logger:         logger,
+		playerRepo:     playerRepo,
+		storageService: storageService,
 	}
 }
 
-func (s *playerService) Create(ctx context.Context, request api.PlayerCreateRequest) error {
-
+func (s *PlayerService) Create(ctx context.Context, request api.PlayerCreateRequest) error {
 	player := &models.Player{
 		ID:           uuid.New().String(),
 		Nickname:     request.Nickname,
@@ -43,7 +33,7 @@ func (s *playerService) Create(ctx context.Context, request api.PlayerCreateRequ
 
 	time.Sleep(5 * time.Second)
 
-	avatarURL, err := s.uploadAvatar(player.ID, request.Avatar)
+	avatarURL, err := s.uploadAvatar(ctx, player.ID, request.Avatar)
 	if err != nil {
 		s.logger.Error("Error uploading avatar to MinIO: ", err)
 		return err
@@ -60,7 +50,7 @@ func (s *playerService) Create(ctx context.Context, request api.PlayerCreateRequ
 	return nil
 }
 
-func (s *playerService) GetNames(ctx context.Context) ([]string, error) {
+func (s *PlayerService) GetNames(ctx context.Context) ([]string, error) {
 	names, err := s.playerRepo.GetNames(ctx)
 	if err != nil {
 		s.logger.Error("Error retrieving player names: ", err)
@@ -69,36 +59,6 @@ func (s *playerService) GetNames(ctx context.Context) ([]string, error) {
 	return names, nil
 }
 
-func (s *playerService) uploadAvatar(playerID string, avatar api.Avatar) (string, error) {
-	bucketName := "avatars"
-
-	ext := filepath.Ext(avatar.Filename)
-	mimeType := mime.TypeByExtension(ext)
-	if mimeType == "" {
-		mimeType = "application/octet-stream"
-	}
-	objectName := fmt.Sprintf("%s%s", playerID, ext)
-
-	exists, err := s.minioClient.BucketExists(context.Background(), bucketName)
-	if err != nil {
-		return "", err
-	}
-	if !exists {
-		err = s.minioClient.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{})
-		if err != nil {
-			return "", err
-		}
-	}
-
-	_, err = s.minioClient.PutObject(context.Background(), bucketName, objectName, avatar.File, avatar.Size, minio.PutObjectOptions{
-		ContentType: mimeType,
-	})
-	if err != nil {
-		return "", err
-	}
-
-	avatarURL := fmt.Sprintf("%s/%s/%s", s.minioClient.EndpointURL().String(), bucketName, objectName)
-	//TODO endpoint to abstract /storage
-
-	return avatarURL, nil
+func (s *PlayerService) uploadAvatar(ctx context.Context, playerID string, avatar *models.FileData) (string, error) {
+	return s.storageService.UploadFile(ctx, "avatars", playerID, avatar)
 }

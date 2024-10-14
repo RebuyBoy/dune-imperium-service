@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func SetupResultRoutes(router fiber.Router, logger *logrus.Logger, resultService services.ResultService) {
+func SetupResultRoutes(router fiber.Router, logger *logrus.Logger, resultService *services.ResultService) {
 	resultHandler := handlers.NewResultHandler(logger, resultService)
 
 	resultsGroup := router.Group("/results")
