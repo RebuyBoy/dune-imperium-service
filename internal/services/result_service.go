@@ -45,7 +45,7 @@ func (s *ResultService) Save(ctx context.Context, saveRequest api.ResultSaveRequ
 	}
 
 	result := models.Result{
-		GameId:        gameId,
+		GameID:        gameId,
 		GameMode:      saveRequest.GameMode,
 		Date:          saveRequest.Date,
 		ScreenshotURL: screenshotURL,

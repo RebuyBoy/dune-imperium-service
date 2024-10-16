@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"dune-imperium-service/internal/dto/api"
+	"dune-imperium-service/internal/mappers"
 	"dune-imperium-service/internal/models"
 	"dune-imperium-service/internal/services"
 	"github.com/gofiber/fiber/v2"
@@ -11,6 +12,7 @@ import (
 type PlayerHandler interface {
 	Create(c *fiber.Ctx) error
 	GetNames(c *fiber.Ctx) error
+	GetById(c *fiber.Ctx) error
 }
 
 type playerHandler struct {
@@ -20,6 +22,17 @@ type playerHandler struct {
 
 func NewPlayerHandler(logger *logrus.Logger, playerService *services.PlayerService) PlayerHandler {
 	return &playerHandler{logger: logger, playerService: playerService}
+}
+
+func (h *playerHandler) GetById(c *fiber.Ctx) error {
+	player, err := h.playerService.GetById(c.Context(), c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Player not found"})
+	}
+
+	response := mappers.ToPlayerResponse(player)
+
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 func (h *playerHandler) Create(c *fiber.Ctx) error {

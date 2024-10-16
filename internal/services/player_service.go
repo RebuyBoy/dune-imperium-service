@@ -62,3 +62,12 @@ func (s *PlayerService) GetNames(ctx context.Context) ([]string, error) {
 func (s *PlayerService) uploadAvatar(ctx context.Context, playerID string, avatar *models.FileData) (string, error) {
 	return s.storageService.UploadFile(ctx, "avatars", playerID, avatar)
 }
+
+func (s *PlayerService) GetById(ctx context.Context, playerID string) (*models.Player, error) {
+	player, err := s.playerRepo.GetById(ctx, playerID)
+	if err != nil {
+		s.logger.Error("Error retrieving player from MongoDB: ", err)
+		return nil, err
+	}
+	return player, nil
+}

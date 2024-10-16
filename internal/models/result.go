@@ -3,16 +3,16 @@ package models
 import "time"
 
 type PlayerResult struct {
-	PlayerId string
-	Leader   string
-	Rank     int
-	Points   int
+	PlayerId string `bson:"player_id"`
+	Leader   string `bson:"leader"`
+	Rank     int    `bson:"rank"`
+	Points   int    `bson:"points"`
 }
 
 type Result struct {
-	GameId        string
-	GameMode      string
-	Date          time.Time
-	ScreenshotURL string
-	Results       []PlayerResult
+	GameID        string         `bson:"_id"`
+	GameMode      string         `bson:"game_mode"`
+	Date          time.Time      `bson:"date"`
+	ScreenshotURL string         `bson:"screenshot_url"`
+	Results       []PlayerResult `bson:"results"`
 }

@@ -14,4 +14,5 @@ func SetupPlayerRoutes(router fiber.Router, logger *logrus.Logger, userService *
 
 	usersGroup.Post("/", userHandler.Create)
 	usersGroup.Get("/names", userHandler.GetNames)
+	usersGroup.Get("/:id", userHandler.GetById)
 }
