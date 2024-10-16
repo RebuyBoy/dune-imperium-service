@@ -5,6 +5,7 @@ import (
 	"dune-imperium-service/internal/dto/api"
 	"dune-imperium-service/internal/models"
 	"dune-imperium-service/internal/repositories"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -12,13 +13,20 @@ import (
 type ResultService struct {
 	logger         *logrus.Logger
 	resultRepo     *repositories.ResultRepository
+	playerRepo     *repositories.PlayerRepository
 	storageService *FileStorageService
 }
 
-func NewResultService(logger *logrus.Logger, resultRepo *repositories.ResultRepository, fileStorageService *FileStorageService) *ResultService {
+func NewResultService(
+	logger *logrus.Logger,
+	resultRepo *repositories.ResultRepository,
+	playerRepo *repositories.PlayerRepository,
+	fileStorageService *FileStorageService,
+) *ResultService {
 	return &ResultService{
 		logger:         logger,
 		resultRepo:     resultRepo,
+		playerRepo:     playerRepo,
 		storageService: fileStorageService,
 	}
 }
@@ -33,6 +41,17 @@ func (s *ResultService) GetAll(ctx context.Context) ([]models.Result, error) {
 }
 
 func (s *ResultService) Save(ctx context.Context, saveRequest api.ResultSaveRequest) error {
+	for i, playerResult := range saveRequest.Results {
+		exists, err := s.playerRepo.Exists(ctx, playerResult.PlayerId)
+		if err != nil {
+			s.logger.Error("Error checking player existence: ", err)
+			return err
+		}
+		if !exists {
+			return fmt.Errorf("player %d  does not exist", i+1)
+		}
+	}
+
 	gameId := uuid.New().String()
 	var screenshotURL string
 	var err error

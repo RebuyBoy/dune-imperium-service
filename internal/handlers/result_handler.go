@@ -47,7 +47,8 @@ func (h *ResultHandler) Save(c *fiber.Ctx) error {
 	err = h.resultService.Save(c.Context(), request)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "failed to save results",
+			"error":   "failed to save results",
+			"message": err.Error(),
 		})
 	}
 

@@ -47,11 +47,21 @@ func (h *playerHandler) Create(c *fiber.Ctx) error {
 	}
 	request.Avatar = avatar
 
-	if err := h.playerService.Create(c.Context(), request); err != nil {
+	newPlayer, err := h.playerService.Create(c.Context(), request)
+	if err != nil {
+		if err.Error() == "nickname already exists" {
+			return h.handleError(c, fiber.StatusConflict, "Nickname already exists", err)
+		}
 		return h.handleError(c, fiber.StatusInternalServerError, "Failed to create player", err)
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Player created successfully"})
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"player": fiber.Map{
+			"id":        newPlayer.ID,
+			"nickname":  newPlayer.Nickname,
+			"avatarURL": newPlayer.AvatarURL,
+		},
+	})
 }
 
 func (h *playerHandler) GetNames(c *fiber.Ctx) error {

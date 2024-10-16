@@ -11,25 +11,18 @@ import (
 	"time"
 )
 
-type PlayerRepository interface {
-	Save(ctx context.Context, player *models.Player) error
-	GetById(ctx context.Context, id string) (*models.Player, error)
-	GetNames(ctx context.Context) ([]string, error)
-	GetByNickname(ctx context.Context, nickname string) (*models.Player, error)
-}
-
-type playerRepository struct {
+type PlayerRepository struct {
 	collection *mongo.Collection
 }
 
-func NewPlayerRepository(db *mongo.Client) PlayerRepository {
+func NewPlayerRepository(db *mongo.Client) *PlayerRepository {
 	collection := db.Database("dune").Collection("players")
-	return &playerRepository{
+	return &PlayerRepository{
 		collection: collection,
 	}
 }
 
-func (r *playerRepository) Save(ctx context.Context, player *models.Player) error {
+func (r *PlayerRepository) Save(ctx context.Context, player *models.Player) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
@@ -37,7 +30,7 @@ func (r *playerRepository) Save(ctx context.Context, player *models.Player) erro
 	return err
 }
 
-func (r *playerRepository) GetById(ctx context.Context, id string) (*models.Player, error) {
+func (r *PlayerRepository) GetById(ctx context.Context, id string) (*models.Player, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
@@ -50,7 +43,7 @@ func (r *playerRepository) GetById(ctx context.Context, id string) (*models.Play
 	return &player, nil
 }
 
-func (r *playerRepository) GetNames(ctx context.Context) ([]string, error) {
+func (r *PlayerRepository) GetNames(ctx context.Context) ([]string, error) {
 	names := make([]string, 0)
 
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
@@ -82,7 +75,7 @@ func (r *playerRepository) GetNames(ctx context.Context) ([]string, error) {
 	return names, nil
 }
 
-func (r *playerRepository) GetByNickname(ctx context.Context, nickname string) (*models.Player, error) {
+func (r *PlayerRepository) GetByNickname(ctx context.Context, nickname string) (*models.Player, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 	var user models.Player
@@ -92,4 +85,26 @@ func (r *playerRepository) GetByNickname(ctx context.Context, nickname string) (
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *PlayerRepository) IsNicknameExists(ctx context.Context, nickname string) (bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	count, err := r.collection.CountDocuments(ctx, bson.M{"nickname": nickname})
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *PlayerRepository) Exists(ctx context.Context, playerID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	count, err := r.collection.CountDocuments(ctx, bson.M{"_id": playerID})
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
