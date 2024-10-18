@@ -1,4 +1,4 @@
-package db
+package storage
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func MongoDBClient(mongoURI string) (*mongo.Client, error) {
+func MongoClient(mongoURI string) (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(mongoURI)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

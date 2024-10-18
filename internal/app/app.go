@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"dune-imperium-service/internal/configs"
-	"dune-imperium-service/internal/db"
 	"dune-imperium-service/internal/server"
 	"dune-imperium-service/internal/services"
 	"dune-imperium-service/internal/storage"
@@ -35,7 +34,7 @@ func (app *App) Initialize() {
 		app.Logger.Fatal("Error getting config: ", err)
 	}
 
-	app.MongoClient, err = db.MongoDBClient(app.Cfg.MongoURI)
+	app.MongoClient, err = storage.MongoClient(app.Cfg.MongoURI)
 	if err != nil {
 		app.Logger.Fatal("Error connecting to MongoDB: ", err)
 	}

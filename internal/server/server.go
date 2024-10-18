@@ -1,5 +1,3 @@
-// internal/server/server.go
-
 package server
 
 import (
@@ -10,7 +8,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func NewServer(logger *logrus.Logger, cfg *configs.Config, svc *services.Container) *fiber.App {
+func NewServer(
+	logger *logrus.Logger,
+	cfg *configs.Config,
+	svc *services.Container,
+) *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName:           cfg.AppName,
 		EnablePrintRoutes: true,

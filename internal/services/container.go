@@ -8,8 +8,9 @@ import (
 )
 
 type Container struct {
-	ResultService *ResultService
-	PlayerService *PlayerService
+	ResultService  *ResultService
+	PlayerService  *PlayerService
+	ContentService *ContentService
 }
 
 type ServiceDependencies struct {
@@ -27,8 +28,12 @@ func NewServiceContainer(deps ServiceDependencies) *Container {
 	resultRepo := repositories.NewResultRepository(deps.MongoClient)
 	resultService := NewResultService(deps.Logger, resultRepo, playerRepo, storageService)
 
+	contentRepo := repositories.NewContentRepository(deps.MongoClient)
+	contentService := NewContentService(deps.Logger, contentRepo, storageService)
+
 	return &Container{
-		ResultService: resultService,
-		PlayerService: playerService,
+		ResultService:  resultService,
+		PlayerService:  playerService,
+		ContentService: contentService,
 	}
 }
