@@ -12,6 +12,7 @@ func SetupContentRoutes(router fiber.Router, logger *logrus.Logger, contentServi
 
 	contentGroup := router.Group("/content")
 
-	contentGroup.Get("/", contentHandler.Get)
+	contentGroup.Get("/:id", contentHandler.GetById)
+	contentGroup.Get("/type/:type", contentHandler.GetByType)
 	contentGroup.Post("/", contentHandler.Create)
 }
