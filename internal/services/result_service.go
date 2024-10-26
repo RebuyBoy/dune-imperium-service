@@ -31,7 +31,7 @@ func NewResultService(
 	}
 }
 
-func (s *ResultService) GetAll(ctx context.Context) ([]models.Result, error) {
+func (s *ResultService) GetAll(ctx context.Context) ([]models.GameResult, error) {
 	results, err := s.resultRepo.GetAll(ctx)
 	if err != nil {
 		s.logger.Error("Error fetching results: ", err)
@@ -63,8 +63,8 @@ func (s *ResultService) Save(ctx context.Context, saveRequest api.ResultSaveRequ
 		}
 	}
 
-	result := models.Result{
-		GameID:        gameId,
+	result := models.GameResult{
+		ID:            gameId,
 		GameMode:      saveRequest.GameMode,
 		Date:          saveRequest.Date,
 		ScreenshotURL: screenshotURL,

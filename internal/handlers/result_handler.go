@@ -20,7 +20,7 @@ func NewResultHandler(logger *logrus.Logger, resultService *services.ResultServi
 	return &ResultHandler{logger: logger, resultService: resultService}
 }
 
-func (h *ResultHandler) GetAll(c *fiber.Ctx) error {
+func (h *ResultHandler) Get(c *fiber.Ctx) error {
 	//TODO pagination
 	//TODO  playerId to nickname, join query?
 	results, err := h.resultService.GetAll(c.Context())
@@ -52,7 +52,7 @@ func (h *ResultHandler) Save(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Result saved successfully"})
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "GameResult saved successfully"})
 }
 
 func (h *ResultHandler) parseSaveRequest(c *fiber.Ctx) (api.ResultSaveRequest, error) {

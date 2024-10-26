@@ -21,8 +21,8 @@ func NewResultRepository(db *mongo.Client) *ResultRepository {
 	}
 }
 
-func (r ResultRepository) GetAll(ctx context.Context) ([]models.Result, error) {
-	results := make([]models.Result, 0)
+func (r ResultRepository) GetAll(ctx context.Context) ([]models.GameResult, error) {
+	results := make([]models.GameResult, 0)
 
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
@@ -43,7 +43,7 @@ func (r ResultRepository) GetAll(ctx context.Context) ([]models.Result, error) {
 	return results, nil
 }
 
-func (r ResultRepository) Save(ctx context.Context, result models.Result) error {
+func (r ResultRepository) Save(ctx context.Context, result models.GameResult) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 

@@ -12,6 +12,6 @@ func SetupResultRoutes(router fiber.Router, logger *logrus.Logger, resultService
 
 	resultsGroup := router.Group("/results")
 
-	resultsGroup.Get("/", resultHandler.GetAll)
+	resultsGroup.Get("/", resultHandler.Get)
 	resultsGroup.Post("/", resultHandler.Save)
 }

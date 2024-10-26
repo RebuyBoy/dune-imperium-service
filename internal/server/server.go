@@ -5,6 +5,7 @@ import (
 	"dune-imperium-service/internal/routes"
 	"dune-imperium-service/internal/services"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,6 +18,7 @@ func NewServer(
 		AppName:           cfg.AppName,
 		EnablePrintRoutes: true,
 	})
+	app.Use(cors.New())
 
 	routes.SetupRoutes(app, logger, svc)
 

@@ -58,6 +58,7 @@ func (s *ContentService) Create(ctx context.Context, request *api.ContentCreateR
 func (s *ContentService) GetById(ctx context.Context, id string) (*models.GameContent, error) {
 	return s.contentRepo.FindById(ctx, id)
 }
+
 func (s *ContentService) GetByType(ctx context.Context, contentType models.ContentType) ([]*models.GameContent, error) {
 	return s.contentRepo.FindByType(ctx, contentType)
 }
